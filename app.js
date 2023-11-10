@@ -19,6 +19,13 @@ const start=async()=>{
     }
 }
 start()
+const user = new mongoose.Schema({
+  username:{
+      type:String,
+  },
+
+})
+const User = mongoose.model('User', user);
 
 app.use(bodyParser.json());
 
@@ -27,24 +34,24 @@ app.get('/', (req, res) => {
 });
 
 app.post('/add', async (req, res) => {
- const newItem = { text: req.body.text, completed: false };
- const result = await db.collection('items').insertOne(newItem);
- res.json(result.ops[0]);
+  try {
+    const newItem = { username: req.body.username };
+    const result = await User.create(newItem);
+    res.send(result);
+  } catch (error) {
+    res.status(500).send('Une erreur sest produite lors de la création de lutilisateur.');
+  }
 });
-
 app.get('/get', async (req, res) => {
- const items = await db.collection('items').find().toArray();
- res.json(items);
+  try {
+    const result = await User.find();
+    res.send(result);
+  } catch (error) {
+    res.status(500).send('Une erreur utilisateurs.');
+  }
 });
 
-app.put('/update/:id', async (req, res) => {
- const updatedItem = { text: req.body.text, completed: req.body.completed };
- const result = await db.collection('items').updateOne({ _id: new mongodb.ObjectID(req.params.id) }, { $set: updatedItem });
- res.json(result);
-});
 
-app.delete('/delete/:id', async (req, res) => {
- const result = await db.collection('items').deleteOne({ _id: new mongodb.ObjectID(req.params.id) });
- res.json(result);
-});
+
+
 
